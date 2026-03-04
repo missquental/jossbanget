@@ -6,8 +6,8 @@ from datetime import datetime
 
 # Konfigurasi halaman
 st.set_page_config(
-    page_title="Notepad Live Realtime",
-    page_icon="📝",
+    page_title="",
+    page_icon="",
     layout="centered"
 )
 
