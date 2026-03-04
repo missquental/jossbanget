@@ -31,7 +31,7 @@ def save_notes(content):
 # Judul aplikasi
 st.title("📝 Notepad Live Realtime")
 
-# Inisialisasi session state
+# Session state management
 if 'last_check' not in st.session_state:
     st.session_state.last_check = time.time()
 
@@ -41,49 +41,43 @@ def save_text():
     st.session_state.last_check = time.time()
 
 # Membaca konten terbaru dari file
-latest_content = load_notes()
+current_content = load_notes()
 
 # Area teks dengan callback otomatis saat berubah
 text_input = st.text_area(
     "Ketik catatan Anda di sini:",
-    value=latest_content,
+    value=current_content,
     height=300,
     key="text_area",
     on_change=save_text
 )
 
-# Menampilkan informasi waktu terakhir diperbarui
-last_update_time = datetime.fromtimestamp(st.session_state.last_check)
-st.info(f"Terakhir diperbarui: {last_update_time.strftime('%Y-%m-%d %H:%M:%S')}")
+# Menampilkan timestamp
+st.info(f"Terakhir update: {datetime.now().strftime('%H:%M:%S')}")
 
-# Tombol untuk membersihkan teks
-if st.button("🗑️ Bersihkan"):
-    save_notes("")
-    st.session_state.last_check = time.time()
+# Tombol aksi
+col1, col2 = st.columns(2)
+with col1:
+    if st.button("🗑️ Clear"):
+        save_notes("")
+        st.experimental_rerun()
+
+with col2:
+    if st.button("🔄 Refresh"):
+        st.experimental_rerun()
+
+# AUTO-REFRESH LOGIC
+current_time = time.time()
+if current_time - st.session_state.last_check >= 20:
+    st.session_state.last_check = current_time
     st.experimental_rerun()
 
-# Auto-refresh textarea setiap 20 detik menggunakan JavaScript
-st.markdown(f"""
-<script>
-let lastCheck = {st.session_state.last_check};
-let currentTime = Date.now() / 1000;
+# Visual countdown
+time_passed = current_time - st.session_state.last_check
+progress_value = min(time_passed / 20.0, 1.0)
+st.progress(progress_value)
+st.caption(f"Refresh otomatis dalam {max(0, 20-int(time_passed))} detik")
 
-// Cek apakah sudah lewat 20 detik
-if ((currentTime - lastCheck) >= 20) {{
-    // Kirim pesan ke parent window untuk refresh
-    window.parent.postMessage({{type: 'streamlit:rerun'}}, '*');
-}}
-</script>
-""", unsafe_allow_html=True)
-
-# Footer
+# Footer info
 st.markdown("---")
-st.caption("📝 Catatan Anda disimpan secara permanen dan textarea diperbarui setiap 20 detik")
-
-# Menampilkan ukuran file
-if os.path.exists(NOTE_FILE):
-    file_size = os.path.getsize(NOTE_FILE)
-    st.caption(f"Ukuran file: {file_size} bytes")
-
-# Menampilkan debug info
-st.caption(f"Debug - Last check: {st.session_state.last_check}")
+st.caption("📝 Notes saved automatically • Refresh every 20 seconds")
