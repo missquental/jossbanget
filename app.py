@@ -2,7 +2,6 @@ import streamlit as st
 import time
 import os
 from datetime import datetime
-import threading
 
 # Konfigurasi halaman
 st.set_page_config(
@@ -17,8 +16,11 @@ NOTE_FILE = "notes.txt"
 # Fungsi untuk membaca catatan dari file
 def load_notes():
     if os.path.exists(NOTE_FILE):
-        with open(NOTE_FILE, "r", encoding="utf-8") as f:
-            return f.read()
+        try:
+            with open(NOTE_FILE, "r", encoding="utf-8") as f:
+                return f.read()
+        except:
+            return ""
     return ""
 
 # Fungsi untuk menyimpan catatan ke file
@@ -30,13 +32,13 @@ def save_notes(content):
 st.title("📝 Notepad Live Realtime")
 
 # Inisialisasi session state
-if 'last_updated' not in st.session_state:
-    st.session_state.last_updated = time.time()
+if 'last_check' not in st.session_state:
+    st.session_state.last_check = time.time()
 
 # Fungsi callback saat teks berubah
 def save_text():
     save_notes(st.session_state.text_area)
-    st.session_state.last_updated = time.time()
+    st.session_state.last_check = time.time()
 
 # Membaca konten terbaru dari file
 latest_content = load_notes()
@@ -50,27 +52,38 @@ text_input = st.text_area(
     on_change=save_text
 )
 
-# Menampilkan informasi waktu terakhir disimpan
-last_save_time = datetime.fromtimestamp(st.session_state.last_updated)
-st.info(f"Terakhir diperbarui: {last_save_time.strftime('%Y-%m-%d %H:%M:%S')}")
+# Menampilkan informasi waktu terakhir diperbarui
+last_update_time = datetime.fromtimestamp(st.session_state.last_check)
+st.info(f"Terakhir diperbarui: {last_update_time.strftime('%Y-%m-%d %H:%M:%S')}")
 
 # Tombol untuk membersihkan teks
 if st.button("🗑️ Bersihkan"):
     save_notes("")
-    st.session_state.last_updated = time.time()
+    st.session_state.last_check = time.time()
     st.experimental_rerun()
 
-# Auto-refresh hanya komponen input setiap 20 detik
-current_time = time.time()
-if current_time - st.session_state.last_updated >= 20:
-    st.session_state.last_updated = current_time
-    st.experimental_rerun()
+# Auto-refresh textarea setiap 20 detik menggunakan JavaScript
+st.markdown(f"""
+<script>
+let lastCheck = {st.session_state.last_check};
+let currentTime = Date.now() / 1000;
+
+// Cek apakah sudah lewat 20 detik
+if ((currentTime - lastCheck) >= 20) {{
+    // Kirim pesan ke parent window untuk refresh
+    window.parent.postMessage({{type: 'streamlit:rerun'}}, '*');
+}}
+</script>
+""", unsafe_allow_html=True)
 
 # Footer
 st.markdown("---")
-st.caption("📝 Catatan Anda disimpan secara permanen dan input diperbarui setiap 20 detik")
+st.caption("📝 Catatan Anda disimpan secara permanen dan textarea diperbarui setiap 20 detik")
 
 # Menampilkan ukuran file
 if os.path.exists(NOTE_FILE):
     file_size = os.path.getsize(NOTE_FILE)
     st.caption(f"Ukuran file: {file_size} bytes")
+
+# Menampilkan debug info
+st.caption(f"Debug - Last check: {st.session_state.last_check}")
