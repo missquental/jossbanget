@@ -27,7 +27,7 @@ def save_notes(content):
         f.write(content)
 
 # Judul aplikasi
-st.title("📝 Notepad Live Realtime")
+st.title("")
 
 # Membaca catatan yang sudah ada
 if 'text' not in st.session_state:
