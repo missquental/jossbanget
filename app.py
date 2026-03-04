@@ -43,7 +43,7 @@ def save_text():
 text_input = st.text_area(
     "Ketik catatan Anda di sini:",
     value=st.session_state.text,
-    height=300,
+    height=500,
     key="text_area",
     on_change=save_text
 )
