@@ -1,5 +1,7 @@
 import streamlit as st
 import time
+import json
+import os
 from datetime import datetime
 
 # Konfigurasi halaman
@@ -9,16 +11,33 @@ st.set_page_config(
     layout="centered"
 )
 
+# Nama file untuk menyimpan catatan
+NOTE_FILE = "notes.txt"
+
+# Fungsi untuk membaca catatan dari file
+def load_notes():
+    if os.path.exists(NOTE_FILE):
+        with open(NOTE_FILE, "r", encoding="utf-8") as f:
+            return f.read()
+    return ""
+
+# Fungsi untuk menyimpan catatan ke file
+def save_notes(content):
+    with open(NOTE_FILE, "w", encoding="utf-8") as f:
+        f.write(content)
+
 # Judul aplikasi
 st.title("📝 Notepad Live Realtime")
 
-# Inisialisasi session state untuk teks
+# Membaca catatan yang sudah ada
 if 'text' not in st.session_state:
-    st.session_state.text = ""
+    st.session_state.text = load_notes()
 
-# Fungsi untuk menyimpan teks ke session state
+# Fungsi callback saat teks berubah
 def save_text():
     st.session_state.text = st.session_state.text_area
+    save_notes(st.session_state.text)
+    st.session_state.last_saved = datetime.now()
 
 # Area teks dengan callback otomatis saat berubah
 text_input = st.text_area(
@@ -30,16 +49,26 @@ text_input = st.text_area(
 )
 
 # Menampilkan informasi waktu terakhir disimpan
-st.info(f"Terakhir disimpan: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+if 'last_saved' not in st.session_state:
+    st.session_state.last_saved = datetime.now()
+
+st.info(f"Terakhir disimpan: {st.session_state.last_saved.strftime('%Y-%m-%d %H:%M:%S')}")
 
 # Tombol untuk membersihkan teks
 if st.button("🗑️ Bersihkan"):
     st.session_state.text = ""
+    save_notes("")
+    st.session_state.last_saved = datetime.now()
     st.experimental_rerun()
 
-# Auto-refresh setiap 5 detik
-st.markdown('<meta http-equiv="refresh" content="5">', unsafe_allow_html=True)
+# Auto-refresh setiap 20 detik
+st.markdown('<meta http-equiv="refresh" content="20">', unsafe_allow_html=True)
 
 # Footer
 st.markdown("---")
-st.caption("📝 Catatan Anda disimpan secara otomatis dan akan diperbarui setiap 5 detik")
+st.caption("📝 Catatan Anda disimpan secara permanen dan akan diperbarui setiap 20 detik")
+
+# Menampilkan ukuran file
+if os.path.exists(NOTE_FILE):
+    file_size = os.path.getsize(NOTE_FILE)
+    st.caption(f"Ukuran file: {file_size} bytes")
