@@ -55,7 +55,7 @@ if 'last_saved' not in st.session_state:
 st.info(f"Terakhir disimpan: {st.session_state.last_saved.strftime('%Y-%m-%d %H:%M:%S')}")
 
 # Tombol untuk membersihkan teks
-if st.button("🗑️ Bersihkan"):
+if st.button(""):
     st.session_state.text = ""
     save_notes("")
     st.session_state.last_saved = datetime.now()
