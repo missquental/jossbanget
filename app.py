@@ -29,53 +29,44 @@ def save_notes(content):
 # Judul aplikasi
 st.title("📝 Notepad Live Realtime")
 
-# Inisialisasi session state
-if 'last_save_time' not in st.session_state:
-    st.session_state.last_save_time = datetime.now()
+# Membaca catatan yang sudah ada
+if 'text' not in st.session_state:
+    st.session_state.text = load_notes()
 
 # Fungsi callback saat teks berubah
 def save_text():
-    save_notes(st.session_state.text_area)
-    st.session_state.last_save_time = datetime.now()
-
-# Membaca konten terbaru dari file
-latest_content = load_notes()
+    st.session_state.text = st.session_state.text_area
+    save_notes(st.session_state.text)
+    st.session_state.last_saved = datetime.now()
 
 # Area teks dengan callback otomatis saat berubah
 text_input = st.text_area(
     "Ketik catatan Anda di sini:",
-    value=latest_content,
+    value=st.session_state.text,
     height=300,
     key="text_area",
     on_change=save_text
 )
 
 # Menampilkan informasi waktu terakhir disimpan
-st.info(f"Terakhir disimpan: {st.session_state.last_save_time.strftime('%Y-%m-%d %H:%M:%S')}")
+if 'last_saved' not in st.session_state:
+    st.session_state.last_saved = datetime.now()
+
+st.info(f"Terakhir disimpan: {st.session_state.last_saved.strftime('%Y-%m-%d %H:%M:%S')}")
 
 # Tombol untuk membersihkan teks
 if st.button("🗑️ Bersihkan"):
+    st.session_state.text = ""
     save_notes("")
-    st.session_state.last_save_time = datetime.now()
+    st.session_state.last_saved = datetime.now()
     st.experimental_rerun()
 
-# Auto-refresh komponen text area setiap 20 detik
-st.markdown("""
-<script>
- setInterval(function() {
-     var textAreas = document.querySelectorAll('textarea');
-     if(textAreas.length > 0) {
-         // Simulate a small change to trigger update
-         var currentText = textAreas[0].value;
-         textAreas[0].value = currentText;
-     }
- }, 20000);
-</script>
-""", unsafe_allow_html=True)
+# Auto-refresh setiap 20 detik
+st.markdown('<meta http-equiv="refresh" content="20">', unsafe_allow_html=True)
 
 # Footer
 st.markdown("---")
-st.caption("📝 Catatan Anda disimpan secara permanen dan input akan diperbarui setiap 20 detik")
+st.caption("📝 Catatan Anda disimpan secara permanen dan akan diperbarui setiap 20 detik")
 
 # Menampilkan ukuran file
 if os.path.exists(NOTE_FILE):
