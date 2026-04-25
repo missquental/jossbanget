@@ -1,14 +1,9 @@
 import streamlit as st
-import time
 import os
 from datetime import datetime
 
 # Konfigurasi halaman
-st.set_page_config(
-    page_title="Catatan Harian",
-    page_icon="📝",
-    layout="centered"
-)
+st.set_page_config(page_title="Catatan Harian", page_icon="📝", layout="centered")
 
 # Nama file untuk menyimpan catatan
 NOTE_FILE = "notes.txt"
@@ -42,6 +37,7 @@ current_mtime = os.path.getmtime(NOTE_FILE) if os.path.exists(NOTE_FILE) else 0
 if st.session_state.last_modified != current_mtime:
     st.session_state.text = load_notes()
     st.session_state.last_modified = current_mtime
+    st.experimental_rerun()  # Force reload jika file berubah
 
 # Judul aplikasi
 st.title("📝 Aplikasi Catatan Sederhana")
@@ -53,6 +49,7 @@ def save_text():
     st.session_state.last_saved = datetime.now()
     # Update last modified manually after saving
     st.session_state.last_modified = os.path.getmtime(NOTE_FILE)
+    st.experimental_rerun()
 
 # Area teks dengan callback otomatis saat berubah
 text_input = st.text_area(
@@ -65,6 +62,17 @@ text_input = st.text_area(
 
 # Menampilkan informasi waktu terakhir disimpan
 st.info(f"Terakhir disimpan: {st.session_state.last_saved.strftime('%Y-%m-%d %H:%M:%S')}")
+
+# Tombol untuk memeriksa perubahan eksternal
+if st.button("🔍 Periksa Perubahan Eksternal"):
+    current_mtime_check = os.path.getmtime(NOTE_FILE) if os.path.exists(NOTE_FILE) else 0
+    if st.session_state.last_modified != current_mtime_check:
+        st.session_state.text = load_notes()
+        st.session_state.last_modified = current_mtime_check
+        st.success("File telah diperbarui! Halaman akan direfresh.")
+        st.experimental_rerun()
+    else:
+        st.info("Tidak ada perubahan baru pada file.")
 
 # Footer
 st.markdown("---")
