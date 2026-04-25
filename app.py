@@ -30,8 +30,9 @@ def save_notes(content):
 st.title("📝 Aplikasi Catatan Pribadi")
 
 # Membaca catatan yang sudah ada
+current_notes = load_notes()
 if 'text' not in st.session_state:
-    st.session_state.text = load_notes()
+    st.session_state.text = current_notes
 
 # Fungsi callback saat teks berubah
 def save_text():
@@ -54,9 +55,12 @@ if 'last_saved' not in st.session_state:
 
 st.info(f"Terakhir disimpan: {st.session_state.last_saved.strftime('%Y-%m-%d %H:%M:%S')}")
 
+# Auto-refresh setiap 20 detik
+st.markdown('<meta http-equiv="refresh" content="20">', unsafe_allow_html=True)
+
 # Footer
 st.markdown("---")
-st.caption("📝 Catatan Anda disimpan secara permanen dan akan diperbarui saat ada perubahan")
+st.caption("📝 Catatan Anda disimpan secara permanen dan akan diperbarui setiap 20 detik")
 
 # Menampilkan ukuran file
 if os.path.exists(NOTE_FILE):
