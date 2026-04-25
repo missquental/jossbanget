@@ -30,14 +30,13 @@ if 'last_modified' not in st.session_state:
 if 'last_saved' not in st.session_state:
     st.session_state.last_saved = datetime.now()
 
-# Cek apakah file berubah sejak kunjungan terakhir
+# Cek apakah file berubah sejak kunjungan terakhir (deteksi eksternal)
 current_mtime = os.path.getmtime(NOTE_FILE) if os.path.exists(NOTE_FILE) else 0
 
-# Hanya lakukan refresh jika file berubah
-if st.session_state.last_modified != current_mtime:
+# Hanya update konten jika file berubah dari luar
+if st.session_state.last_modified != current_mtime and st.session_state.last_modified is not None:
     st.session_state.text = load_notes()
     st.session_state.last_modified = current_mtime
-    st.rerun()  # Gunakan st.rerun() yang kompatibel
 
 # Judul aplikasi
 st.title("📝 Aplikasi Catatan Sederhana")
@@ -49,7 +48,6 @@ def save_text():
     st.session_state.last_saved = datetime.now()
     # Update last modified manually after saving
     st.session_state.last_modified = os.path.getmtime(NOTE_FILE)
-    st.rerun()  # Gunakan st.rerun() alih-alih st.experimental_rerun()
 
 # Area teks dengan callback otomatis saat berubah
 text_input = st.text_area(
@@ -69,10 +67,8 @@ if st.button("🔍 Periksa Perubahan Eksternal"):
     if st.session_state.last_modified != current_mtime_check:
         st.session_state.text = load_notes()
         st.session_state.last_modified = current_mtime_check
-        st.success("File telah diperbarui! Halaman akan direfresh.")
-        st.rerun()
-    else:
-        st.info("Tidak ada perubahan baru pada file.")
+        st.success("File telah diperbarui!")
+        # Tampilkan pesan konfirmasi saja, tidak perlu rerun
 
 # Footer
 st.markdown("---")
