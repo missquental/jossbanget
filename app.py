@@ -37,7 +37,7 @@ current_mtime = os.path.getmtime(NOTE_FILE) if os.path.exists(NOTE_FILE) else 0
 if st.session_state.last_modified != current_mtime:
     st.session_state.text = load_notes()
     st.session_state.last_modified = current_mtime
-    st.experimental_rerun()  # Force reload jika file berubah
+    st.rerun()  # Gunakan st.rerun() yang kompatibel
 
 # Judul aplikasi
 st.title("📝 Aplikasi Catatan Sederhana")
@@ -49,7 +49,7 @@ def save_text():
     st.session_state.last_saved = datetime.now()
     # Update last modified manually after saving
     st.session_state.last_modified = os.path.getmtime(NOTE_FILE)
-    st.experimental_rerun()
+    st.rerun()  # Gunakan st.rerun() alih-alih st.experimental_rerun()
 
 # Area teks dengan callback otomatis saat berubah
 text_input = st.text_area(
@@ -70,7 +70,7 @@ if st.button("🔍 Periksa Perubahan Eksternal"):
         st.session_state.text = load_notes()
         st.session_state.last_modified = current_mtime_check
         st.success("File telah diperbarui! Halaman akan direfresh.")
-        st.experimental_rerun()
+        st.rerun()
     else:
         st.info("Tidak ada perubahan baru pada file.")
 
