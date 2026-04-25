@@ -3,7 +3,7 @@ import os
 from datetime import datetime
 
 # Konfigurasi halaman
-
+st.set_page_config(page_title="Catatan Harian", page_icon="📝", layout="centered")
 
 # Nama file untuk menyimpan catatan
 NOTE_FILE = "notes.txt"
