@@ -2,6 +2,9 @@ import streamlit as st
 import os
 from datetime import datetime
 
+# Konfigurasi halaman
+
+
 # Nama file untuk menyimpan catatan
 NOTE_FILE = "notes.txt"
 
@@ -46,22 +49,28 @@ def save_text():
     # Update last modified manually after saving
     st.session_state.last_modified = os.path.getmtime(NOTE_FILE)
 
-# Area teks dengan callback otomatis saat berubah
+# Area teks dengan tombol refresh di atasnya
+st.markdown("#### Catatan Anda:")
+
+# Tombol refresh di sebelah label catatan
+col1, col2 = st.columns([4, 1])
+with col1:
+    st.write("")  # Spacer
+with col2:
+    if st.button("🔄 Refresh", key="refresh_btn"):
+        st.rerun()
+
+# Area text input
 text_input = st.text_area(
-    "Ketik catatan Anda di sini:",
+    "",
     value=st.session_state.text,
     height=500,
     key="text_area",
     on_change=save_text
 )
 
-# Menampilkan informasi waktu terakhir disimpan dengan tombol refresh
-col1, col2 = st.columns([3, 1])
-with col1:
-    st.info(f"Terakhir disimpan: {st.session_state.last_saved.strftime('%Y-%m-%d %H:%M:%S')}")
-with col2:
-    if st.button("🔄 Refresh", key="refresh_btn"):
-        st.rerun()
+# Menampilkan informasi waktu terakhir disimpan
+st.info(f"Terakhir disimpan: {st.session_state.last_saved.strftime('%Y-%m-%d %H:%M:%S')}")
 
 # Footer
 st.markdown("---")
