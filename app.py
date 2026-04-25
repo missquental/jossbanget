@@ -50,7 +50,7 @@ def save_text():
     st.session_state.last_modified = os.path.getmtime(NOTE_FILE)
 
 # Area teks dengan tombol refresh di atasnya
-st.markdown("#### Catatan Anda:")
+
 
 # Tombol refresh di sebelah label catatan
 col1, col2 = st.columns([4, 1])
