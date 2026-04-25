@@ -39,7 +39,7 @@ if st.session_state.last_modified != current_mtime and st.session_state.last_mod
     st.session_state.last_modified = current_mtime
 
 # Judul aplikasi
-st.title("📝 Aplikasi Catatan Sederhana")
+
 
 # Fungsi callback saat teks berubah
 def save_text():
