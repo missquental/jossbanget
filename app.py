@@ -39,7 +39,7 @@ if st.session_state.last_modified != current_mtime and st.session_state.last_mod
     st.session_state.last_modified = current_mtime
 
 # Judul aplikasi
-
+st.title("📝 Aplikasi Catatan Sederhana")
 
 # Fungsi callback saat teks berubah
 def save_text():
@@ -49,32 +49,29 @@ def save_text():
     # Update last modified manually after saving
     st.session_state.last_modified = os.path.getmtime(NOTE_FILE)
 
-# Area teks dengan tombol refresh di atasnya
-
-
-# Tombol refresh di sebelah label catatan
-col1, col2 = st.columns([4, 1])
-with col1:
-    st.write("")  # Spacer
-with col2:
-    if st.button("🔄 Refresh", key="refresh_btn"):
-        st.rerun()
-
-# Area text input
+# Area teks dengan auto refresh
 text_input = st.text_area(
-    "",
+    "Catatan Anda:",
     value=st.session_state.text,
     height=500,
     key="text_area",
     on_change=save_text
 )
 
+# Hidden button untuk trigger refresh dengan Enter
+def trigger_refresh():
+    st.rerun()
+
+# Form untuk capture Enter key
+with st.form(key='refresh_form', clear_on_submit=True):
+    submit_button = st.form_submit_button(label='🔄 Refresh (Enter)', on_click=trigger_refresh)
+
 # Menampilkan informasi waktu terakhir disimpan
 st.info(f"Terakhir disimpan: {st.session_state.last_saved.strftime('%Y-%m-%d %H:%M:%S')}")
 
 # Footer
 st.markdown("---")
-st.caption("📝 Catatan Anda disimpan secara permanen dan akan diperbarui hanya saat ada perubahan.")
+st.caption("📝 Catatan Anda disimpan secara permanen. Tekan Enter atau klik Refresh untuk memperbarui.")
 
 # Menampilkan ukuran file
 if os.path.exists(NOTE_FILE):
