@@ -27,7 +27,6 @@ def save_notes(content):
         f.write(content)
 
 # Judul aplikasi
-st.title("📝 Aplikasi Catatan Pribadi")
 
 # Membaca catatan yang sudah ada
 current_notes = load_notes()
