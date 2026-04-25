@@ -41,7 +41,7 @@ def save_text():
 
 # Area teks dengan callback otomatis saat berubah
 text_input = st.text_area(
-    "Ketik catatan Anda di sini:",
+    
     value=st.session_state.text,
     height=500,
     key="text_area",
