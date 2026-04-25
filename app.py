@@ -2,9 +2,6 @@ import streamlit as st
 import os
 from datetime import datetime
 
-# Konfigurasi halaman
-st.set_page_config(page_title="Catatan Harian", page_icon="📝", layout="centered")
-
 # Nama file untuk menyimpan catatan
 NOTE_FILE = "notes.txt"
 
@@ -58,17 +55,13 @@ text_input = st.text_area(
     on_change=save_text
 )
 
-# Menampilkan informasi waktu terakhir disimpan
-st.info(f"Terakhir disimpan: {st.session_state.last_saved.strftime('%Y-%m-%d %H:%M:%S')}")
-
-# Tombol untuk memeriksa perubahan eksternal
-if st.button("🔍 Periksa Perubahan Eksternal"):
-    current_mtime_check = os.path.getmtime(NOTE_FILE) if os.path.exists(NOTE_FILE) else 0
-    if st.session_state.last_modified != current_mtime_check:
-        st.session_state.text = load_notes()
-        st.session_state.last_modified = current_mtime_check
-        st.success("File telah diperbarui!")
-        # Tampilkan pesan konfirmasi saja, tidak perlu rerun
+# Menampilkan informasi waktu terakhir disimpan dengan tombol refresh
+col1, col2 = st.columns([3, 1])
+with col1:
+    st.info(f"Terakhir disimpan: {st.session_state.last_saved.strftime('%Y-%m-%d %H:%M:%S')}")
+with col2:
+    if st.button("🔄 Refresh", key="refresh_btn"):
+        st.rerun()
 
 # Footer
 st.markdown("---")
